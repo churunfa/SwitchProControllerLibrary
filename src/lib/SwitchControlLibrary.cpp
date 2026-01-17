@@ -42,7 +42,7 @@ void SwitchControlLibrary::loop() {
             std::cout << "[已连接] " << port_name << std::endl;
         }
         sendReport();
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
 }
 
@@ -109,7 +109,7 @@ void SwitchControlLibrary::resetAll() {
     resetLeftAnalog();
     resetRightAnalog();
     // 体感只留重力
-    setIMU(0, 0, -4096, 0, 0, 0);
+    resetIMU();
 }
 
 void SwitchControlLibrary::pressButton(const ButtonType button) {
@@ -144,6 +144,10 @@ void SwitchControlLibrary::setIMU(int16_t accX, int16_t accY, int16_t accZ, int1
         i.gyroY = gyroY;
         i.gyroZ = gyroZ;
     }
+}
+
+void SwitchControlLibrary::resetIMU() {
+    setIMU(0, 0, -4096, 0, 0, 0);
 }
 
 void SwitchControlLibrary::setAnalogX(SwitchAnalog stick, const uint16_t x) {

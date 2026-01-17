@@ -53,6 +53,7 @@ class SwitchControlLibrary {
         void resetRightAnalog();
         // 体感角速度和加速度
         void setIMU(int16_t accX, int16_t accY, int16_t accZ, int16_t gyroX, int16_t gyroY, int16_t gyroZ);
+        void resetIMU();
         void resetAll();
         void sendReport();
     private:

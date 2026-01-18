@@ -1,7 +1,7 @@
 # Switch Pro Controller Library 🎮
 
 [![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-blue)]()
-[![Language](https://img.shields.io/badge/Language-Python%20%2F%20C%2B%2B-green)]()
+[![Language](https://img.shields.io/badge/Language-C%2B%2B-green)]()
 
 **SwitchProControllerLibrary** 是一个运行在PC端的控制库。
 
@@ -57,5 +57,6 @@ void sendReport(); // 手动发送报告
 ```
 
 设置按键状态后会以5ms/次的速度同步到开发板，开发版也会以5ms/次的速度同步到Switch。前者可以通过手动执行sendReport()进行立刻同步。
+
 
 

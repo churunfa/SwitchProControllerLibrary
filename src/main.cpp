@@ -1,11 +1,20 @@
 #include <iostream>
+
+#ifdef _WIN32
+#else
 #include <ApplicationServices/ApplicationServices.h>
+#endif
+
 #include "lib/SwitchControlLibrary.h"
 
 int main() {
+#ifdef _WIN32
+    SetConsoleOutputCP(65001);
+#endif
+
     SwitchControlLibrary switchController;
-    while (true) {
-        std::string str; std::cin >> str;
+    std::string str;
+    while (std::cin >> str) {
         if (str == "a") {
             switchController.pressButton(BUTTON_A);
         } else if (str == "A") {

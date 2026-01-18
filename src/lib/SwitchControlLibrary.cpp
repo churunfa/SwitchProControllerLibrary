@@ -5,7 +5,7 @@
 
 #include "SwitchControlLibrary.h"
 
-#include <dirent.h>
+#include <cstring>
 #include <iostream>
 
 SwitchControlLibrary::SwitchControlLibrary() : switchReport{}, lastSwitchReport{} {
@@ -25,7 +25,7 @@ SwitchControlLibrary::~SwitchControlLibrary() {
 void SwitchControlLibrary::loop() {
     while (running) {
         if (port_name.empty()) {
-            port_name = AutoDetectPort();
+            port_name = SerialPort::AutoDetectPort();
         }
         if (port_name.empty()) {
             std::cout << "[搜索中] 等待设备... \n";
@@ -77,23 +77,6 @@ void SwitchControlLibrary::sendReport() {
     memcpy(&lastSwitchReport, &switchReport, sizeof(SwitchProReport));
 }
 
-// 自动寻找 /dev/tty.usbmodem* 或 /dev/tty.usbserial*
-std::string SwitchControlLibrary::AutoDetectPort() {
-    DIR* dir = opendir("/dev");
-    dirent* ent;
-    if (dir) {
-        while ((ent = readdir(dir)) != nullptr) {
-            std::string name = ent->d_name;
-            if (name.find("tty.usbmodem") != std::string::npos ||
-                name.find("tty.usbserial") != std::string::npos) {
-                    closedir(dir);
-                    return "/dev/" + name;
-                }
-        }
-        closedir(dir);
-    }
-    return "";
-}
 
 void SwitchControlLibrary::resetAll() {
     std::lock_guard<std::recursive_mutex> lock(reportMtx);

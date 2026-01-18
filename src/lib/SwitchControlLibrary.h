@@ -4,6 +4,7 @@
 
 #ifndef CONTROLLER_SWITCH_CONTROL_LIBRARY_H
 #define CONTROLLER_SWITCH_CONTROL_LIBRARY_H
+#include <atomic>
 #include <mutex>
 #include <thread>
 
@@ -67,7 +68,6 @@ class SwitchControlLibrary {
         std::atomic<bool> running{false};
         uint8_t header[2]={0xAA, 0x55};
 
-        static std::string AutoDetectPort();
         void loop();
 
         static void setAnalogX(SwitchAnalog stick, uint16_t x);

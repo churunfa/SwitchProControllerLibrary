@@ -5,14 +5,22 @@
 
 #include "SwitchControlLibrary.h"
 
-#include <cstring>
 #include <iostream>
+
+long long getCurrentTime() {
+    const auto now = std::chrono::system_clock::now();
+    return std::chrono::time_point_cast<std::chrono::milliseconds>(now).time_since_epoch().count();
+
+}
+
+constexpr ImuData gravitationImuData[3] = {{0, -4090, 0}, {0, -4090, 0}, {0, -4090, 0}};
 
 SwitchControlLibrary::SwitchControlLibrary() : switchReport{}, lastSwitchReport{} {
     resetAll();
     running = true;
     reportSize = sizeof(SwitchProReport);
     worker = std::thread(&SwitchControlLibrary::loop, this);
+    imuLastCollectTime = getCurrentTime();
 }
 
 SwitchControlLibrary::~SwitchControlLibrary() {
@@ -40,6 +48,15 @@ void SwitchControlLibrary::loop() {
                 continue;
             }
             std::cout << "[已连接] " << port_name << std::endl;
+        }
+        if (resetImuStatus) {
+            std::lock_guard<std::recursive_mutex> lock(resetImuMtx);
+            setIMUCore(0, 0, -4096, 0, 0, 0);
+            if (memcmp(switchReport.imuData, gravitationImuData, sizeof(ImuData) * 3) == 0) {
+                // 三组Imu全部重置完成
+                resetImuStatus = false;
+            }
+
         }
         sendReport();
         std::this_thread::sleep_for(std::chrono::milliseconds(5));
@@ -105,7 +122,7 @@ void SwitchControlLibrary::pressButton(const ButtonType button) {
 
 }
 
-void SwitchControlLibrary::releaseButton(ButtonType button) {
+void SwitchControlLibrary::releaseButton(const ButtonType button) {
     std::lock_guard<std::recursive_mutex> lock(reportMtx);
 
     auto* ptr = reinterpret_cast<uint8_t*>(&switchReport);
@@ -114,23 +131,39 @@ void SwitchControlLibrary::releaseButton(ButtonType button) {
     ptr[byteIdx] &= ~(1 << bitOffset);  // 设置为 0
 }
 
+void SwitchControlLibrary::setIMU(const int16_t accX, const int16_t accY, const int16_t accZ, const int16_t gyroX, const int16_t gyroY, const int16_t gyroZ) {
+    std::lock_guard<std::recursive_mutex> lock(resetImuMtx);
+    setIMUCore(accX, accY, accZ, gyroX, gyroY, gyroZ);
+    resetImuStatus = false;
+}
 
-void SwitchControlLibrary::setIMU(int16_t accX, int16_t accY, int16_t accZ, int16_t gyroX, int16_t gyroY, int16_t gyroZ) {
+void SwitchControlLibrary::setIMUCore(const int16_t accX, const int16_t accY, const int16_t accZ, const int16_t gyroX, const int16_t gyroY, const int16_t gyroZ) {
     std::lock_guard<std::recursive_mutex> lock(reportMtx);
-
-    // 先设置一样的，可能需要动态算一下
-    for (auto & i : switchReport.imuData) {
-        i.accX = accX;
-        i.accY = accY;
-        i.accZ = accZ;
-        i.gyroX = gyroX;
-        i.gyroY = gyroY;
-        i.gyroZ = gyroZ;
+    const long long currentTime = getCurrentTime();
+    // IMU数据正常5ms采集一次，这里模拟下
+    if (currentTime > imuLastCollectTime + 5) {
+        for (int i = 0; i < 2; i++) {
+            switchReport.imuData[i].accX = switchReport.imuData[i + 1].accX;
+            switchReport.imuData[i].accY = switchReport.imuData[i + 1].accY;
+            switchReport.imuData[i].accZ = switchReport.imuData[i + 1].accZ;
+            switchReport.imuData[i].gyroX = switchReport.imuData[i + 1].gyroX;
+            switchReport.imuData[i].gyroY = switchReport.imuData[i + 1].gyroY;
+            switchReport.imuData[i].gyroZ = switchReport.imuData[i + 1].gyroZ;
+        }
+        imuLastCollectTime = currentTime;
     }
+    switchReport.imuData[2].accX = accX;
+    switchReport.imuData[2].accY = accY;
+    switchReport.imuData[2].accZ = accZ;
+    switchReport.imuData[2].gyroX = gyroX;
+    switchReport.imuData[2].gyroY = gyroY;
+    switchReport.imuData[2].gyroZ = gyroZ;
 }
 
 void SwitchControlLibrary::resetIMU() {
-    setIMU(0, 0, -4096, 0, 0, 0);
+    std::lock_guard<std::recursive_mutex> lock(resetImuMtx);
+    setIMUCore(0, 0, -4096, 0, 0, 0);
+    resetImuStatus = true;
 }
 
 void SwitchControlLibrary::setAnalogX(SwitchAnalog stick, const uint16_t x) {

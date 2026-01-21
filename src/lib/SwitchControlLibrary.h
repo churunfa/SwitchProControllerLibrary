@@ -41,38 +41,40 @@ typedef enum {
 } ButtonType;
 
 class SwitchControlLibrary {
-    public:
-        SwitchControlLibrary();
-        ~SwitchControlLibrary();
-        void pressButton(ButtonType button);
-        void releaseButton(ButtonType button);
-        // 左摇杆，x,y -> 0~4096; 居中：2048
-        void moveLeftAnalog(uint16_t x, uint16_t y);
-        void resetLeftAnalog();
-        // 右摇杆，x,y -> 0~4096; 居中：2048
-        void moveRightAnalog(uint16_t x, uint16_t y);
-        void resetRightAnalog();
-        // 体感角速度和加速度
-        void setIMU(int16_t accX, int16_t accY, int16_t accZ, int16_t gyroX, int16_t gyroY, int16_t gyroZ);
-        void resetIMU();
-        void resetAll();
-        void sendReport();
-    private:
-        SwitchProReport switchReport;
-        SwitchProReport lastSwitchReport;
-        uint8_t reportSize;
-        SerialPort serial;
-        std::string port_name;
-        std::thread worker;
-        std::recursive_mutex reportMtx;
-        std::atomic<bool> running{false};
-        uint8_t header[2]={0xAA, 0x55};
+public:
+    SwitchControlLibrary();
+    ~SwitchControlLibrary();
+    void pressButton(ButtonType button);
+    void releaseButton(ButtonType button);
+    // 左摇杆，x,y -> 0~4096; 居中：2048
+    void moveLeftAnalog(uint16_t x, uint16_t y);
+    void resetLeftAnalog();
+    // 右摇杆，x,y -> 0~4096; 居中：2048
+    void moveRightAnalog(uint16_t x, uint16_t y);
+    void resetRightAnalog();
+    // 体感角速度和加速度
+    void setIMU(int16_t accX, int16_t accY, int16_t accZ, int16_t gyroX, int16_t gyroY, int16_t gyroZ);
+    void resetIMU();
+    void resetAll();
+    void sendReport();
+private:
+    SwitchProReport switchReport;
+    SwitchProReport lastSwitchReport;
+    uint8_t reportSize;
+    SerialPort serial;
+    std::string port_name;
+    std::thread worker;
+    std::recursive_mutex reportMtx;
+    std::atomic<bool> running{false};
+    std::atomic<bool> resetImuStatus{false};
+    std::recursive_mutex resetImuMtx;
+    uint8_t header[2]={0xAA, 0x55};
+    long long imuLastCollectTime;
 
-        void loop();
-
-        static void setAnalogX(SwitchAnalog stick, uint16_t x);
-
-        static void setAnalogY(SwitchAnalog stick, uint16_t y);
+    void loop();
+    void setIMUCore(int16_t accX, int16_t accY, int16_t accZ, int16_t gyroX, int16_t gyroY, int16_t gyroZ);
+    static void setAnalogX(SwitchAnalog stick, uint16_t x);
+    static void setAnalogY(SwitchAnalog stick, uint16_t y);
 };
 
 

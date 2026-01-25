@@ -1,9 +1,5 @@
 #include <iostream>
 
-#ifdef _WIN32
-#else
-#include <ApplicationServices/ApplicationServices.h>
-#endif
 
 #include "lib/SwitchControlLibrary.h"
 
@@ -12,7 +8,7 @@ int main() {
     SetConsoleOutputCP(65001);
 #endif
 
-    SwitchControlLibrary switchController;
+    auto& switchController = SwitchControlLibrary::getInstance();
     std::string str;
     while (std::cin >> str) {
         if (str == "a") {

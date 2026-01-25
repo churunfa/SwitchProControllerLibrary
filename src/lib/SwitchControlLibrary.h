@@ -57,6 +57,11 @@ public:
     void resetIMU();
     void resetAll();
     void sendReport();
+    static SwitchControlLibrary& getInstance();
+
+    // 禁止拷贝
+    SwitchControlLibrary(const SwitchControlLibrary&) = delete;
+    SwitchControlLibrary& operator=(const SwitchControlLibrary&) = delete;
 private:
     SwitchProReport switchReport;
     SwitchProReport lastSwitchReport;
@@ -73,8 +78,8 @@ private:
 
     void loop();
     void setIMUCore(int16_t accX, int16_t accY, int16_t accZ, int16_t gyroX, int16_t gyroY, int16_t gyroZ);
-    static void setAnalogX(SwitchAnalog stick, uint16_t x);
-    static void setAnalogY(SwitchAnalog stick, uint16_t y);
+    static void setAnalogX(SwitchAnalog& stick, uint16_t x);
+    static void setAnalogY(SwitchAnalog& stick, uint16_t y);
 };
 
 

@@ -43,10 +43,10 @@ graph LR
 ```
 void pressButton(ButtonType button); // 按下指定按键(入参参考上述功能按键)
 void releaseButton(ButtonType button); // 松开指定按键
-// 左摇杆，x,y -> 0~4096; 居中：2048
+// 左摇杆，笛卡尔坐标系，x,y -> -2047~2047; 居中：0,0
 void moveLeftAnalog(uint16_t x, uint16_t y); // 移动左摇杆
 void resetLeftAnalog(); // 释放左摇杆（居中）
-// 右摇杆，x,y -> 0~4096; 居中：2048
+// 右摇杆，x,y -> -2047~2047; 居中：0,0
 void moveRightAnalog(uint16_t x, uint16_t y); // 移动右摇杆
 void resetRightAnalog(); // 释放右摇杆
 // 体感角速度和加速度

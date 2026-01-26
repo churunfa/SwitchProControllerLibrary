@@ -167,8 +167,8 @@ void SwitchControlLibrary::resetIMU() {
 }
 
 void SwitchControlLibrary::setAnalogX(SwitchAnalog& stick, const uint16_t x) {
-    uint16_t standard_x = std::min(x, static_cast<uint16_t>(4097));
-    standard_x = std::max(standard_x, static_cast<uint16_t>(0));
+    uint16_t standard_x = std::min(x, static_cast<uint16_t>(4095));
+    standard_x = std::max(standard_x, static_cast<uint16_t>(1));
 
     uint8_t *data = stick.data;
     data[0] = standard_x & 0xFF;
@@ -176,8 +176,8 @@ void SwitchControlLibrary::setAnalogX(SwitchAnalog& stick, const uint16_t x) {
 }
 
 void SwitchControlLibrary::setAnalogY(SwitchAnalog& stick, const uint16_t y) {
-    uint16_t standard_y = std::min(y, static_cast<uint16_t>(4097));
-    standard_y = std::max(standard_y, static_cast<uint16_t>(0));
+    uint16_t standard_y = std::min(y, static_cast<uint16_t>(4095));
+    standard_y = std::max(standard_y, static_cast<uint16_t>(1));
 
     uint8_t *data = stick.data;
     data[1] = (data[1] & 0x0F) | ((standard_y & 0x0F) << 4);

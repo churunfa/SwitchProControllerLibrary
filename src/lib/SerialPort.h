@@ -194,4 +194,42 @@ public:
         return fd != -1;
 #endif
     }
+
+    /**
+     * @brief 从串口读取数据
+     * @param buffer 接收缓冲区的指针
+     * @param maxLen 拟读取的最大长度
+     * @return 实际读取到的字节数。如果返回 -1 表示读取出错或连接已断开。
+     */
+    int Read(void* buffer, size_t maxLen) {
+#ifdef _WIN32
+        if (hSerial == INVALID_HANDLE_VALUE) return -1;
+
+        DWORD bytesRead = 0;
+        // Windows 的 ReadFile
+        if (!ReadFile(hSerial, buffer, (DWORD)maxLen, &bytesRead, nullptr)) {
+            // 获取错误代码，如果是连接断开等严重错误，则关闭串口
+            DWORD lastError = GetLastError();
+            if (lastError != ERROR_IO_PENDING) {
+                Close();
+                return -1;
+            }
+        }
+        return static_cast<int>(bytesRead);
+#else
+        if (fd == -1) return -1;
+
+        const ssize_t n = read(fd, buffer, maxLen);
+        if (n < 0) {
+            // EAGAIN 表示当前没有数据可读（在设置了超时或非阻塞时常见）
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                return 0;
+            }
+            // 其他错误视为断开连接
+            Close();
+            return -1;
+        }
+        return static_cast<int>(n);
+#endif
+    }
 };

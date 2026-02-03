@@ -208,6 +208,36 @@ void SwitchControlLibrary::resetRightAnalog() {
     moveRightAnalog(0, 0);
 }
 
+void SwitchControlLibrary::delayTest() {
+    while (!serial.IsConnected()) {
+        std::cout<<"未连接"<<std::endl;
+        sleep(1);
+    }
+    const long long startTime = getCurrentTime();
+
+    constexpr uint8_t delayTestHeader[] = {0xBB, 0x66};
+    uint8_t delayTest[64] = {0};
+    if (!serial.Write(delayTestHeader, 2)) {
+        std::cout<<"header写入失败"<<std::endl;
+    }
+    if (!serial.Write(delayTest, 64)) {
+        std::cout<<"消息体写入失败"<<std::endl;
+    }
+    // 发送校验和
+    uint8_t checkSum = 0;
+    for (uint8_t i = 0; i < 64; i++) {
+        checkSum ^= delayTest[i];
+    }
+    if (!serial.Write(&checkSum, 1)) {
+        std::cout << "checkSum发送失败" << std::endl;
+    }
+    const long long sendFinishedTime = getCurrentTime();
+
+    serial.Read(delayTest, 64);
+    const long long sendTime = getCurrentTime();
+    std::cout<<"消息处理耗时:" << sendFinishedTime - startTime <<",消息发送耗时"<<(sendTime - startTime)/2<<std::endl;
+}
+
 SwitchControlLibrary& SwitchControlLibrary::getInstance() {
     static SwitchControlLibrary instance;
     return instance;

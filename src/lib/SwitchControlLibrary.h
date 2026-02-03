@@ -57,6 +57,7 @@ public:
     void resetIMU();
     void resetAll();
     void sendReport();
+    void delayTest();
     static SwitchControlLibrary& getInstance();
 
     // 禁止拷贝

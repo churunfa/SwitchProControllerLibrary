@@ -9,6 +9,11 @@ int main() {
 #endif
 
     auto& switchController = SwitchControlLibrary::getInstance();
+
+    for (int i = 0; i < 10; i++) {
+        switchController.delayTest();
+    }
+
     std::string str;
     while (std::cin >> str) {
         if (str == "a") {

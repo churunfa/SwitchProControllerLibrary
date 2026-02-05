@@ -7,6 +7,7 @@
 #include <atomic>
 #include <mutex>
 #include <thread>
+#include <vector>
 
 #include "SwitchReport.h"
 #include "SerialPort.h"
@@ -75,8 +76,12 @@ private:
     std::atomic<bool> resetImuStatus{false};
     std::recursive_mutex resetImuMtx;
     uint8_t header[2]={0xAA, 0x55};
+    std::vector<uint8_t> buffer;
     long long imuLastCollectTime;
+    struct sp_port *port{};
 
+    void initSerial();
+    void cleanup();
     void loop();
     void setIMUCore(int16_t accX, int16_t accY, int16_t accZ, int16_t gyroX, int16_t gyroY, int16_t gyroZ);
     static void setAnalogX(SwitchAnalog& stick, uint16_t x);

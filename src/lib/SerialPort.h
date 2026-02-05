@@ -176,8 +176,9 @@ public:
         if (dir) {
             while ((ent = readdir(dir)) != nullptr) {
                 std::string name = ent->d_name;
-                if (name.find("tty.usbmodem") != std::string::npos ||
-                    name.find("tty.usbserial") != std::string::npos) {
+                if (name.find("tty.wchusbserial") != std::string::npos  ||
+                    name.find("cu.usbmodem") != std::string::npos ||
+                    name.find("cu.usbserial") != std::string::npos) {
                     closedir(dir);
                     return "/dev/" + name;
                     }

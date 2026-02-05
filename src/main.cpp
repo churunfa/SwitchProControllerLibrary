@@ -10,9 +10,7 @@ int main() {
 
     auto& switchController = SwitchControlLibrary::getInstance();
 
-    for (int i = 0; i < 10; i++) {
-        switchController.delayTest();
-    }
+    switchController.delayTest();
 
     std::string str;
     while (std::cin >> str) {
@@ -40,6 +38,8 @@ int main() {
             switchController.pressButton(BUTTON_R);
         } else if (str == "R") {
             switchController.releaseButton(BUTTON_R);
+        } else if (str == "11") {
+            switchController.delayTest();
         }
     }
 }

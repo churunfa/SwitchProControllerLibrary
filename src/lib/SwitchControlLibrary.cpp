@@ -97,7 +97,6 @@ void SwitchControlLibrary::loop(){
             std::this_thread::sleep_for(std::chrono::seconds(1));
             continue;
         }
-        std::cout << "设备连接成功：" << port_name << std::endl;
         if (resetImuStatus) {
             std::lock_guard lock(resetImuMtx);
             setIMUCore(0, 0, -4096, 0, 0, 0);
